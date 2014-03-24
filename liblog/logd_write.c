@@ -253,6 +253,23 @@ int __android_log_write(int prio, const char *tag, const char *msg)
 
     /* XXX: This needs to go! */
     if (!strcmp(tag, "HTC_RIL") ||
+#ifdef MTK
+        #ifdef MTK_DT_SUPPORT
+        !strncmp(tag, "RIL3", 4) ||
+        !strcmp(tag, "AT3") ||
+        !strcmp(tag, "MUXD3") || 
+        #endif
+        #ifdef EVDO_DT_SUPPORT
+        !strcmp(tag, "VIA_RIL") ||
+        !strcmp(tag, "VIA_AT") ||
+        !strcmp(tag, "VIA_RILC") || 
+        !strcmp(tag, "VIA_RILD") || 
+        #endif /* EVDO_DT_SUPPORT */
+        !strcmp(tag, "RILMD2") ||
+        !strcmp(tag, "ATMD2") ||
+        !strcmp(tag, "MUXDMD2") || 
+        !strcmp(tag, "MUXD") || 
+#endif
         !strncmp(tag, "RIL", 3) || /* Any log tag with "RIL" as the prefix */
         !strncmp(tag, "IMS", 3) || /* Any log tag with "IMS" as the prefix */
         !strcmp(tag, "AT") ||
