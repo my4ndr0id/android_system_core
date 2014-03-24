@@ -74,6 +74,9 @@ include $(CLEAR_VARS)
 LOCAL_CFLAGS += $(LIBLOG_CFLAGS)
 LOCAL_MODULE := liblog
 LOCAL_SRC_FILES := $(liblog_sources)
+ifeq ($(MTK),true)
+LOCAL_CFLAGS += -DMTK
+endif
 include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
