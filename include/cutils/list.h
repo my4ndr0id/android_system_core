@@ -45,6 +45,9 @@ struct listnode
     for (node = (list)->prev; node != (list); node = node->prev)
 
 void list_init(struct listnode *list);
+#ifdef MTK
+void list_add_head(struct listnode *list, struct listnode *item);
+#endif
 void list_add_tail(struct listnode *list, struct listnode *item);
 void list_remove(struct listnode *item);
 

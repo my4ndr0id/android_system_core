@@ -593,7 +593,70 @@ void queue_property_triggers(const char *name, const char *value)
         }
     }
 }
+#ifdef MTK
+void queue_fs_property_triggers()
+{
+    struct listnode *node;
+    struct action *act;
+    list_for_each(node, &action_list) {
+        act = node_to_item(node, struct action, alist);
+        if (!strncmp(act->name, "fs_property:", strlen("fs_property:"))) {
+            /* parse property name and value
+               syntax is property:<name>=<value> */
+            const char* name = act->name + strlen("fs_property:");
+            const char* equals = strchr(name, '=');
+            if (equals) {
+                char prop_name[PROP_NAME_MAX + 1];
+                const char* value;
+                int length = equals - name;
+                if (length > PROP_NAME_MAX) {
+                    ERROR("property name too long in trigger %s", act->name);
+                } else {
+                    memcpy(prop_name, name, length);
+                    prop_name[length] = 0;
 
+                    /* does the property exist, and match the trigger value? */
+                    value = property_get(prop_name);
+                    if (value && !strcmp(equals + 1, value)) {
+                        action_add_queue_head(act);
+                    }
+                }
+            }
+        }
+    }
+}
+void queue_early_property_triggers()
+{
+    struct listnode *node;
+    struct action *act;
+    list_for_each(node, &action_list) {
+        act = node_to_item(node, struct action, alist);
+        if (!strncmp(act->name, "early_property:", strlen("early_property:"))) {
+            /* parse property name and value
+               syntax is property:<name>=<value> */
+            const char* name = act->name + strlen("early_property:");
+            const char* equals = strchr(name, '=');
+            if (equals) {
+                char prop_name[PROP_NAME_MAX + 1];
+                const char* value;
+                int length = equals - name;
+                if (length > PROP_NAME_MAX) {
+                    ERROR("property name too long in trigger %s", act->name);
+                } else {
+                    memcpy(prop_name, name, length);
+                    prop_name[length] = 0;
+
+                    /* does the property exist, and match the trigger value? */
+                    value = property_get(prop_name);
+                    if (value && !strcmp(equals + 1, value)) {
+                        action_add_queue_head(act);
+                    }
+                }
+            }
+        }
+    }
+}
+#endif
 void queue_all_property_triggers()
 {
     struct listnode *node;
@@ -644,6 +707,39 @@ void queue_builtin_action(int (*func)(int nargs, char **args), char *name)
     list_add_tail(&action_list, &act->alist);
     action_add_queue_tail(act);
 }
+#ifdef MTK
+
+void action_add_queue_tail(struct action *act)
+{
+    if ((act->qlist.next == NULL) && (act->qlist.prev == NULL)) {
+        list_add_tail(&action_queue, &act->qlist);
+    }
+    else {
+        ERROR("action requeue to tail before execute act %p\n", act);
+    }
+}
+void action_add_queue_head(struct action *act)
+{
+    if ((act->qlist.next == NULL) && (act->qlist.prev == NULL)) {
+        list_add_head(&action_queue, &act->qlist);
+    }
+    else {
+        ERROR("action requeue to head before execute act %p\n", act);
+    }
+}
+struct action *action_remove_queue_head(void)
+{
+    if (list_empty(&action_queue)) {
+        return 0;
+    } else {
+        struct listnode *node = list_head(&action_queue);
+        struct action *act = node_to_item(node, struct action, qlist);
+        list_remove(node);
+        node->next = node->prev = NULL;
+        return act;
+    }
+}
+#else
 
 void action_add_queue_tail(struct action *act)
 {
@@ -661,6 +757,7 @@ struct action *action_remove_queue_head(void)
         return act;
     }
 }
+#endif
 
 int action_queue_empty()
 {

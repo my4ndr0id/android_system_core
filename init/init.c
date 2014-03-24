@@ -774,7 +774,18 @@ static int check_startup_action(int nargs, char **args)
 
     return 0;
 }
-
+#ifdef MTK
+static int queue_early_property_triggers_action()
+{
+    queue_early_property_triggers();
+    return 0;
+}
+static int queue_fs_property_triggers_action()
+{
+    queue_fs_property_triggers();
+    return 0;
+}
+#endif
 static int queue_property_triggers_action(int nargs, char **args)
 {
     queue_all_property_triggers();
@@ -999,6 +1010,26 @@ int main(int argc, char **argv)
     /* execute all the boot actions to get us started */
     action_for_each_trigger("init", action_add_queue_tail);
 
+#ifdef MTK
+    /* skip mounting filesystems in charger mode */
+    if (!is_charger) {
+        queue_builtin_action(queue_fs_property_triggers_action, "queue_fs_propety_triggers");
+        action_for_each_trigger("early-fs", action_add_queue_tail);
+        if(emmc_boot) {
+            action_for_each_trigger("emmc-fs", action_add_queue_tail);
+        } else {
+            action_for_each_trigger("fs", action_add_queue_tail);
+        }
+        action_for_each_trigger("post-fs", action_add_queue_tail);
+        action_for_each_trigger("post-fs-data", action_add_queue_tail);
+    }
+
+    queue_builtin_action(property_service_init_action, "property_service_init");
+    queue_builtin_action(signal_init_action, "signal_init");
+    queue_builtin_action(check_startup_action, "check_startup");
+
+    queue_builtin_action(queue_early_property_triggers_action, "queue_early_propety_triggers");
+#else
     /* skip mounting filesystems in charger mode */
     if (!is_charger) {
         action_for_each_trigger("early-fs", action_add_queue_tail);
@@ -1014,6 +1045,7 @@ int main(int argc, char **argv)
     queue_builtin_action(property_service_init_action, "property_service_init");
     queue_builtin_action(signal_init_action, "signal_init");
     queue_builtin_action(check_startup_action, "check_startup");
+#endif
 
     /* Older bootloaders use non-standard charging modes. Check for
      * those now, after mounting the filesystems */
