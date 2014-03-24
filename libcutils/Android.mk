@@ -126,6 +126,12 @@ LOCAL_SRC_FILES := $(commonSources) \
         partition_utils.c \
         qtaguid.c \
         uevent.c
+	
+ifeq ($(MTK),true)
+LOCAL_SRC_FILES += pmem-dev.cpp
+LOCAL_CFLAGS += -DMTK
+endif
+
 
 ifeq ($(TARGET_ARCH),arm)
 LOCAL_SRC_FILES += arch-arm/memset32.S
