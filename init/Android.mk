@@ -69,6 +69,10 @@ ifeq ($(MTK),true)
 LOCAL_CFLAGS += -DMTK
 endif
 
+ifeq ($(MTK_KERNEL_POWER_OFF_CHARGING),yes)
+LOCAL_CFLAGS += -DMTK_KERNEL_POWER_OFF_CHARGING_SUPPORT
+endif
+
 include $(BUILD_EXECUTABLE)
 
 # Make a symlink from /sbin/ueventd and /sbin/watchdogd to /init

@@ -809,6 +809,33 @@ static int bootchart_init_action(int nargs, char **args)
     return 0;
 }
 #endif
+#if defined (MTK_KERNEL_POWER_OFF_CHARGING_SUPPORT)
+static int is_kernel_power_off_charging_boot(void)
+{
+    int fd;
+    size_t s;
+    char boot_mode;
+    fd = open("/sys/class/BOOT/BOOT/boot/boot_mode", O_RDWR);
+    if (fd < 0) {
+        printf("fail to open: %s\n", "/sys/class/BOOT/BOOT/boot/boot_mode");
+        return 0;
+    }
+    s = read(fd, (void *)&boot_mode, sizeof(boot_mode));
+    close(fd);
+    if(s <= 0){
+        ERROR("could not read boot mode sys file\n");
+        return 0;
+    }
+    //KERNEL POWER OFF CHARGING MODE '8' 
+	//LOW POWER OFF CHARGING MODE '9'
+    if ((boot_mode != '8') && (boot_mode != '9')){
+	ERROR("Unsupported Kernel Power Off Charging mode\n");
+        return 0;
+    }
+    printf("Kernel Power Off Charging Mode Booting.....\n");
+    return 1;
+}
+#endif
 
 #ifdef HAVE_SELINUX
 static const struct selinux_opt seopts_prop[] = {
@@ -1054,7 +1081,13 @@ int main(int argc, char **argv)
 
     if (is_charger) {
         action_for_each_trigger("charger", action_add_queue_tail);
-    } else {
+    }
+#if defined (MTK_KERNEL_POWER_OFF_CHARGING_SUPPORT)
+    else if (is_kernel_power_off_charging_boot()){
+	action_for_each_trigger("ipo", action_add_queue_tail);
+    } 
+#endif
+    else {
         action_for_each_trigger("early-boot", action_add_queue_tail);
         action_for_each_trigger("boot", action_add_queue_tail);
     }
