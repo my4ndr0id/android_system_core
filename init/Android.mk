@@ -65,6 +65,10 @@ LOCAL_C_INCLUDES += external/libselinux/include
 LOCAL_CFLAGS += -DHAVE_SELINUX
 endif
 
+ifeq ($(MTK),true)
+LOCAL_CFLAGS += -DMTK
+endif
+
 include $(BUILD_EXECUTABLE)
 
 # Make a symlink from /sbin/ueventd and /sbin/watchdogd to /init
