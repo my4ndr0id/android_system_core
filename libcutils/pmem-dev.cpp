@@ -115,7 +115,7 @@ void* pmem_alloc(size_t size, int *pfd)
     fd = open(PMEM_DEVICE_NAME, (O_RDWR | O_SYNC));
     if (INVALID_FD == fd)
     {
-        LOGE("[PMEM] open %s failed!", PMEM_DEVICE_NAME);
+        ALOGE("[PMEM] open %s failed!", PMEM_DEVICE_NAME);
         goto open_failed;
     }
 
