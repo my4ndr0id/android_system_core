@@ -103,4 +103,15 @@ case "$1" in
                 ;;
         esac
         ;;
+
+    "msm7627a")
+        case "$soc_hwplatform" in
+            "FFA")
+                setprop ro.sf.lcd_density 240
+                ;;
+            *)
+                setprop ro.sf.lcd_density 240
+                ;;
+        esac
+        ;;
 esac
