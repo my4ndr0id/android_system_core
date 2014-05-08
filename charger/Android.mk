@@ -5,6 +5,8 @@ ifneq ($(BUILD_TINY_ANDROID),true)
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
+ifeq ($(TARGET_PREBUILT_CHARGER),)
+
 LOCAL_SRC_FILES := \
 	charger.c
 
@@ -20,6 +22,14 @@ LOCAL_STATIC_LIBRARIES := libminui libpixelflinger_static libpng
 LOCAL_STATIC_LIBRARIES += libz libstdc++ libcutils libc
 
 include $(BUILD_EXECUTABLE)
+else
+LOCAL_MODULE := charger
+LOCAL_SRC_FILES := ../../../$(TARGET_PREBUILT_CHARGER)
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_CLASS := EXECUTABLES
+LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT)
+include $(BUILD_PREBUILT)
+endif #TARGET_PREBUILT_CHARGER
 
 define _add-charger-image
 include $$(CLEAR_VARS)

@@ -2,7 +2,7 @@
 
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
-
+ifeq ($(TARGET_PREBUILT_INIT),)
 LOCAL_SRC_FILES:= \
 	builtins.c \
 	init.c \
@@ -31,6 +31,15 @@ LOCAL_UNSTRIPPED_PATH := $(TARGET_ROOT_OUT_UNSTRIPPED)
 LOCAL_STATIC_LIBRARIES := libcutils libc
 
 include $(BUILD_EXECUTABLE)
+else
+LOCAL_MODULE := init
+LOCAL_SRC_FILES := ../../../$(TARGET_PREBUILT_INIT)
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_CLASS := EXECUTABLES
+LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT)
+include $(BUILD_PREBUILT)
+
+endif #TARGET_PREBUILT_INIT
 
 # Make a symlink from /sbin/ueventd to /init
 SYMLINKS := $(TARGET_ROOT_OUT)/sbin/ueventd
