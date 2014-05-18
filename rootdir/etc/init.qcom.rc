@@ -278,9 +278,8 @@ service bridgemgrd /system/bin/bridgemgrd
 
 service port-bridge /system/bin/port-bridge /dev/smd0 /dev/ttyGS0
     class late_start
-    user system
-    group system inet
     disabled
+    oneshot
 
 service qmiproxy /system/bin/qmiproxy
     class main
