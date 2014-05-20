@@ -104,7 +104,7 @@ case "$usb_config" in
                 esac
             ;;
             "msm7627a")
-                setprop persist.sys.usb.config diag,serial_smd,serial_tty,rmnet_smd,mass_storage,adb
+                setprop persist.sys.usb.config adb
             ;;
             * )
                 case "$baseband" in
