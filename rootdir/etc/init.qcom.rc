@@ -36,7 +36,7 @@ on early-boot
     setrlimit 8 67108864 67108864
 
 on boot
-    exec system/bin/btnvtool -O
+    # exec system/bin/btnvtool -O
     chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
@@ -118,10 +118,6 @@ on boot
     write /proc/sys/net/ipv6/conf/rmnet_sdio5/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_sdio6/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_sdio7/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_usb0/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_usb1/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_usb2/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_usb3/accept_ra 2
 
     # To prevent out of order acknowledgements from making
     # connection tracking to treat them as not belonging to
@@ -200,9 +196,6 @@ on post-fs-data
 
     setprop vold.post_fs_data_done 1
 
-    #Create /data/data/media for SRS to be able to create a user config file
-    mkdir /data/data/media 0770 media media
-
 # Export GPIO56 for fusion targets to enable/disable hub
 service usbhub_init /system/bin/usbhub_init
    class late_start
@@ -280,6 +273,13 @@ service port-bridge /system/bin/port-bridge /dev/smd0 /dev/ttyGS0
     class late_start
     disabled
     oneshot
+
+
+# This is servcie for PCUI function
+service port-bridge-pcui /system/bin/port-bridge /dev/smd7 /dev/ttyGS1
+    class late_start
+    disabled
+    oneshot    
 
 service qmiproxy /system/bin/qmiproxy
     class main
@@ -559,3 +559,47 @@ on property:persist.sys.ssr.restart_level=1
 
 on property:persist.sys.ssr.restart_level=3
     write /sys/module/subsystem_restart/parameters/restart_level 3
+service diag_atc /system/bin/diag_atc
+    class main
+    user root
+service wifidiagsend /system/bin/sh /system/etc/wifitest_send.sh
+    class main
+    user root
+    group root
+    disabled
+    oneshot
+service wifidiagrecv /system/bin/sh /system/etc/wifitest_recv.sh
+    class main
+    user root
+    group root
+    disabled
+service bttestmode /system/bin/sh /system/etc/testmode.sh
+    class main
+    user root
+    group root
+    disabled
+    oneshot  
+service loadwifi /system/bin/sh /system/etc/load_wifi_mod.sh
+    class main
+    user root
+    group root
+    disabled
+    oneshot  
+service rmwifi /system/bin/sh /system/etc/remove_wifi_mod.sh
+    class main
+    user root
+    group root
+    disabled
+    oneshot
+service test_bluetooth /system/bin/sh /system/etc/test_bluetooth.sh
+    class main
+    user root
+    group root
+    disabled
+    oneshot
+service efs_sync /system/bin/sh /system/etc/efs_sync.sh
+    class main
+    user root
+    group root
+    disabled
+    oneshot
