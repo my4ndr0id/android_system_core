@@ -131,7 +131,7 @@ void restart_root_service(int fd, void *cookie)
         property_get("ro.build.type", build_type, "");
         property_get("ro.my4ndr0id.version", my4ndr0id_version, "");
 
-        if (strlen(cm_version) > 0 && strcmp(build_type, "eng") != 0 && (atoi(value) & 2) != 2) {
+        if (strlen(my4ndr0id_version) > 0 && strcmp(build_type, "eng") != 0 && (atoi(value) & 2) != 2) {
             snprintf(buf, sizeof(buf), "root access is disabled by system setting - enable in settings -> development options\n");
             writex(fd, buf, strlen(buf));
             adb_close(fd);
