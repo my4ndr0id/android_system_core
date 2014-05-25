@@ -79,27 +79,13 @@ static android_LogPriority filterCharToPri (char c)
 
 static int usage(const char *s)
 {
-    fprintf(stderr, "USAGE: %s [-p priorityChar] [-t tag] {message|-s}\n", s);
+    fprintf(stderr, "USAGE: %s [-p priorityChar] [-t tag] message\n", s);
 
     fprintf(stderr, "\tpriorityChar should be one of:\n"
                         "\t\tv,d,i,w,e\n");
     exit(-1);
 }
 
-static int getline(char *buf, int size) {
-    int ch;
-
-    int i = 0;
-    while ((ch = getc(stdin)) != EOF && i < size-1) {
-        if (ch == '\n') {
-            break;
-        }
-        buf[i++] = ch;
-    }
-    buf[i] = '\0';
-
-    return i;
-}
 
 int log_main(int argc, char *argv[])
 {
@@ -107,14 +93,13 @@ int log_main(int argc, char *argv[])
     const char *tag = "log";
     char buffer[4096];
     int i;
-    int from_stdin = 0;
 
     priority = ANDROID_LOG_INFO;
 
     for (;;) {
         int ret;
 
-        ret = getopt(argc, argv, "t:p:sh");
+        ret = getopt(argc, argv, "t:p:h");
 
         if (ret < 0) {
             break;
@@ -132,38 +117,28 @@ int log_main(int argc, char *argv[])
                 }
             break;
 
-            case 's':
-                from_stdin = 1;
-            break;
-
             case 'h':
                 usage(argv[0]);
             break;
         }
     }
 
-    if (from_stdin) {
-        while (getline(buffer, 4096) > 0) {
-            __android_log_print(priority, tag, "%s", buffer);
-        }
-    } else {
-        if (optind == argc) {
-            usage(argv[0]);
-        }
-
-        buffer[0] = '\0';
-
-        for (i = optind ; i < argc ; i++) {
-            strncat(buffer, argv[i], sizeof(buffer)-1);
-            strncat(buffer, " ", sizeof(buffer)-1);
-        }
-
-        if(buffer[0] == 0) {
-            usage(argv[0]);
-        }
-
-        __android_log_print(priority, tag, "%s", buffer);
+    if (optind == argc) {
+        usage(argv[0]);
     }
+
+    buffer[0] = '\0';
+    
+    for (i = optind ; i < argc ; i++) {
+        strncat(buffer, argv[i], sizeof(buffer)-1);
+        strncat(buffer, " ", sizeof(buffer)-1);
+    }
+
+    if(buffer[0] == 0) {
+        usage(argv[0]);
+    }
+
+    __android_log_print(priority, tag, "%s", buffer);
 
     return 0;
 }
