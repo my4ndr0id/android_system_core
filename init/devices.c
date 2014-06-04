@@ -256,20 +256,6 @@ static void remove_platform_device(const char *name)
     }
 }
 
-static const char *strip_platform_device_prefix(const char *path)
-{
-    const char *name = NULL;
-
-    if (!strncmp(path, "/devices/", 9)) {
-        name = path + 9;
-        if (!strncmp(name, "platform/", 9)) {
-            name += 9;
-        }
-    }
-
-    return name;
-}
-
 #if LOG_UEVENTS
 
 static inline suseconds_t get_usecs(void)
@@ -408,12 +394,9 @@ static char **parse_platform_block_device(struct uevent *uevent)
         return NULL;
     memset(links, 0, sizeof(char *) * 4);
 
-    /* Drop path prefix before device name */
+    /* Drop "/devices/platform/" */
     path = uevent->path;
-    device = strip_platform_device_prefix(path);
-    if (!device)
-        goto err;
-
+    device = path + 18;
     device = find_platform_device(device);
     if (!device)
         goto err;
@@ -482,9 +465,7 @@ static void handle_device(const char *action, const char *devpath,
 
 static void handle_platform_device_event(struct uevent *uevent)
 {
-    const char *name = strip_platform_device_prefix(uevent->path);
-    if (!name)
-        return;
+    const char *name = uevent->path + 18; /* length of /devices/platform/ */
 
     if (!strcmp(uevent->action, "add"))
         add_platform_device(name);
@@ -527,7 +508,7 @@ static void handle_block_device_event(struct uevent *uevent)
     snprintf(devpath, sizeof(devpath), "%s%s", base, name);
     mkdir(base, 0755);
 
-    if (!strncmp(uevent->path, "/devices/", 9))
+    if (!strncmp(uevent->path, "/devices/platform/", 18))
         links = parse_platform_block_device(uevent);
 
     handle_device(uevent->action, devpath, uevent->path, 1,
@@ -553,7 +534,9 @@ static void handle_generic_device_event(struct uevent *uevent)
               */
              int bus_id = uevent->minor / 128 + 1;
              int device_id = uevent->minor % 128 + 1;
-             /* build bus directory */
+             /* build directories */
+             mkdir("/dev/bus", 0755);
+             mkdir("/dev/bus/usb", 0755);
              snprintf(devpath, sizeof(devpath), "/dev/bus/usb/%03d", bus_id);
              mkdir(devpath, 0755);
              snprintf(devpath, sizeof(devpath), "/dev/bus/usb/%03d/%03d", bus_id, device_id);
@@ -805,7 +788,7 @@ void handle_device_fd()
 **
 ** We drain any pending events from the netlink socket every time
 ** we poke another uevent file to make sure we don't overrun the
-** socket's buffer.
+** socket's buffer.  
 */
 
 static void do_coldboot(DIR *d)
