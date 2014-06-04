@@ -21,6 +21,10 @@ LOCAL_C_INCLUDES := bootable/recovery
 LOCAL_STATIC_LIBRARIES := libminui libpixelflinger_static libpng
 LOCAL_STATIC_LIBRARIES += libz libstdc++ libcutils libc
 
+ifneq ($(BOARD_BATTERY_DEVICE_NAME),)
+LOCAL_CFLAGS += -DBATTERY_DEVICE_NAME=\"$(BOARD_BATTERY_DEVICE_NAME)\"
+endif
+
 include $(BUILD_EXECUTABLE)
 else
 LOCAL_MODULE := charger
@@ -45,8 +49,13 @@ endef
 
 _img_modules :=
 _images :=
+ifneq ($(BOARD_CHARGER_RES),)
+$(foreach _img, $(call find-subdir-subdir-files, ../../../$(BOARD_CHARGER_RES), "*.png"), \
+  $(eval $(call _add-charger-image,$(_img))))
+else
 $(foreach _img, $(call find-subdir-subdir-files, "images", "*.png"), \
   $(eval $(call _add-charger-image,$(_img))))
+endif
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := charger_res_images
