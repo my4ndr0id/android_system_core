@@ -44,6 +44,7 @@ loglevel 3
 # create mountpoints
     mkdir /mnt 0775 root system
     mkdir /mnt/sdcard 0000 system system
+    mkdir /mnt/internal_sd 0000 system system
 
 # create USB host bus directory here so that libusbhost
 # can start monitoring.
@@ -57,6 +58,7 @@ loglevel 3
 
 # Backwards Compat - XXX: Going away in G*
     symlink /mnt/sdcard /sdcard
+    symlink /mnt/internal_sd /internal_sd
 
     mkdir /system
     mkdir /data 0771 system system
