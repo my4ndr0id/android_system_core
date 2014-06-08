@@ -46,7 +46,26 @@ case "$serialno" in
 esac
 
 chown root.system /sys/devices/platform/msm_hsusb/gadget/wakeup
+chown root system /sys/class/android_usb/android0/enable
+chown root system /sys/class/android_usb/android0/idVendor
+chown root system /sys/class/android_usb/android0/idProduct
+chown root system /sys/class/android_usb/android0/f_diag/clients
+chown root system /sys/class/android_usb/android0/f_serial/transports
+chown root system /sys/class/android_usb/android0/functions
+chown root system /sys/class/android_usb/android0/f_mass_storage/sdcard_lun/file
+chown root system /sys/class/android_usb/android0/f_mass_storage/cdrom_lun/file
+chown root system /sys/class/android_usb/android0/f_mass_storage/lun/file
+
 chmod 220 /sys/devices/platform/msm_hsusb/gadget/wakeup
+chmod 664 /sys/class/android_usb/android0/enable
+chmod 664 /sys/class/android_usb/android0/idVendor
+chmod 664 /sys/class/android_usb/android0/idProduct
+chmod 664 /sys/class/android_usb/android0/f_diag/clients
+chmod 664 /sys/class/android_usb/android0/f_serial/transports
+chmod 664 /sys/class/android_usb/android0/functions
+chmod 664 /sys/class/android_usb/android0/f_mass_storage/sdcard_lun/file
+chmod 664 /sys/class/android_usb/android0/f_mass_storage/cdrom_lun/file
+chmod 664 /sys/class/android_usb/android0/f_mass_storage/lun/file
 
 #
 # Allow persistent usb charging disabling
