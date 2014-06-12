@@ -45,6 +45,8 @@
 #include "util.h"
 #include "log.h"
 
+#include <device_perms.h>
+
 #define PERSISTENT_PROPERTY_DIR  "/data/property"
 
 static int persistent_properties_loaded = 0;
@@ -53,6 +55,7 @@ static int property_area_inited = 0;
 static int property_set_fd = -1;
 
 /* White list of permissions for setting property services. */
+#ifndef PROPERTY_PERMS
 struct {
     const char *prefix;
     unsigned int uid;
@@ -75,6 +78,7 @@ struct {
     { "hw.",              AID_SYSTEM,   0 },
     { "sys.",             AID_SYSTEM,   0 },
     { "service.",         AID_SYSTEM,   0 },
+    { "service.",         AID_RADIO,    0 },
     { "wlan.",            AID_SYSTEM,   0 },
     { "dhcp.",            AID_SYSTEM,   0 },
     { "dhcp.",            AID_DHCP,     0 },
@@ -88,13 +92,19 @@ struct {
     { "wifi.",            AID_WIFI,     0 },
     { "hw.fm.",           AID_FM_RADIO,  0 },
     { "bluetooth.",       AID_SYSTEM,    0 },
+    { "persist.service.", AID_RADIO,    0 },
+    { "persist.security.",AID_SYSTEM,   0 },
+    { "net.pdp",          AID_RADIO,    AID_RADIO },
     { NULL, 0, 0 }
 };
+/* Avoid extending this array. Check device_perms.h */
+#endif
 
 /*
  * White list of UID that are allowed to start/stop services.
  * Currently there are no user apps that require.
  */
+#ifndef CONTROL_PERMS
 struct {
     const char *service;
     unsigned int uid;
@@ -105,6 +115,8 @@ struct {
     { "fm_dl", AID_FM_RADIO, AID_FM_RADIO},
      {NULL, 0, 0 }
 };
+/* Avoid extending this array. Check device_perms.h */
+#endif
 
 typedef struct {
     void *data;
